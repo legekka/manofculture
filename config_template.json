@@ -1,0 +1,15 @@
+{
+    "aibackend": {
+        "backendUrl": "http://backendip:port/",
+        "debug": true
+    },
+    "dcbot": {
+        "token": "discordbottoken"
+    },
+    "sankaku": {
+        "username": "username",
+        "password": "password",
+        "newImageInterval": 1800000,
+        "pageLimit": 100
+    }
+}
