@@ -13,9 +13,34 @@ module.exports = {
     sendNewImages: sendNewImages,
 };
 
-client.on("messageCreate", (message) => {
+client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
+
+    // Tagger Part
+    if (config.taggerChannels.includes(message.channel.id)) {
+        if (message.attachments.size > 0) {
+            let url = message.attachments.first().url;
+            let filename = message.attachments.first().filename;
+            let embed = await core.tagger.TagImage(url, filename);
+            if (!embed.error) {
+                await message.channel.send({ embeds: [embed] });
+            } else {
+                await message.channel.send(embed.error);
+            }
+        } else if (message.content.includes("http")) {
+            let url = message.content.split(" ").find((w) => w.includes("http"));
+            let extension = url.split("/").pop().split(".").pop();
+            let filename = message.id + "." + extension;
+            let embed = await core.tagger.TagImage(url, filename);
+            if (!embed.error) {
+                await message.channel.send({ embeds: [embed] });
+            } else {
+                await message.channel.send(embed.error);
+            }
+        }
+    }
     if (message.guild === null) {
+        // Suggestor Part
         if (message.content.startsWith(config.prefix)) {
             let command = message.content.substring(config.prefix.length);
             if (command.startsWith("rngfeed start")) {
@@ -73,7 +98,7 @@ async function sendNewImages() {
         if (user) {
             if (!user.ignoreActiveHours) {
                 if (!IsActiveHours()) {
-                    return;
+                    continue;
                 }
             }
             log(`Sending image ${image.id} to ${user.name}`, "Info");
@@ -199,6 +224,10 @@ function IsActiveHours() {
 function _init(coreprogram, configuration) {
     core = coreprogram;
     config = configuration;
+    if (!config.taggerChannels) {
+        log("No tagger channels defined!", "Error");
+        return;
+    }
     if (!config.activeHours) {
         log("No active hours specified in config.json", "Error");
         return;

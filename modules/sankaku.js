@@ -28,6 +28,7 @@ module.exports = {
         }, 1000 * 60 * 30);
         CheckNewImages();
     },
+    DownloadPromise: DownloadPromise,
 };
 
 async function CheckNewImages() {
