@@ -50,7 +50,7 @@ function createEmbed(url, tags) {
         } else if (tag.confidence > 0.6) {
             desc += `${tag.name} *(${(tag.confidence * 100).toFixed(2)}%)*\n`;
         } else if (tag.confidence > 0.5) {
-            desc += `~~${tag.name} *(${(tag.confidence * 100).toFixed(2)}%)*~~\n`;
+            desc += `*${tag.name} (${(tag.confidence * 100).toFixed(2)}%)*\n`;
         }
     });
     embed.setDescription(desc);

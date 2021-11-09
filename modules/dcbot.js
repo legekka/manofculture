@@ -13,30 +13,44 @@ module.exports = {
     sendNewImages: sendNewImages,
 };
 
-client.on("messageCreate", async (message) => {
+client.on("messageCreate", (message) => {
     if (message.author.bot) return;
+
+    // Rater Part
+    if (config.raterChannels.includes(message.channel.id)) {
+        if (message.attachments.size > 0) {
+            let url = message.attachments.first().url;
+            let filename = message.attachments.first().name;
+            core.rater.RateImage(url, filename).then((embed) => {
+                if (!embed.error) message.channel.send({ embeds: [embed] });
+            });
+        } else if (message.content.includes("http")) {
+            let url = message.content.split(" ").find((w) => w.includes("http"));
+            let extension = url.split("/").pop().split(".").pop();
+            let filename = message.id + "." + extension;
+            core.rater.RateImage(url, filename).then((embed) => {
+                if (!embed.error) message.channel.send({ embeds: [embed] });
+            });
+        }
+    }
 
     // Tagger Part
     if (config.taggerChannels.includes(message.channel.id)) {
         if (message.attachments.size > 0) {
             let url = message.attachments.first().url;
-            let filename = message.attachments.first().filename;
-            let embed = await core.tagger.TagImage(url, filename);
-            if (!embed.error) {
-                await message.channel.send({ embeds: [embed] });
-            } else {
-                await message.channel.send(embed.error);
-            }
+            let filename = message.attachments.first().name;
+            core.tagger.TagImage(url, filename).then((embed) => {
+                if (!embed.error) message.channel.send({ embeds: [embed] });
+                else message.channel.send("Error: " + embed.error);
+            });
         } else if (message.content.includes("http")) {
             let url = message.content.split(" ").find((w) => w.includes("http"));
             let extension = url.split("/").pop().split(".").pop();
             let filename = message.id + "." + extension;
-            let embed = await core.tagger.TagImage(url, filename);
-            if (!embed.error) {
-                await message.channel.send({ embeds: [embed] });
-            } else {
-                await message.channel.send(embed.error);
-            }
+            core.tagger.TagImage(url, filename).then((embed) => {
+                if (!embed.error) message.channel.send({ embeds: [embed] });
+                else message.channel.send("Error: " + embed.error);
+            });
         }
     }
     if (message.guild === null) {
