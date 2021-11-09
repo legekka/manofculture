@@ -80,7 +80,12 @@ async function CheckNewImages() {
         promises = [];
         for (let i = 0; i < ratings.length; i++) {
             for (let j = 0; j < ratings[i].length; j++) {
-                if (ratings[i][j] >= 0.9) {
+                let limit = 0.9;
+                let user = core.dcbot.usermap.find((u) => u.name == users[j]);
+                if (user.newImageRatingLimit) {
+                    limit = user.newImageRatingLimit;
+                }
+                if (ratings[i][j] >= limit) {
                     output.push({
                         id: newData[i].id,
                         filename: newData[i].filename,

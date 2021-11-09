@@ -18,8 +18,7 @@ module.exports = {
 
     rate: function (image, user) {
         return new Promise(async function (resolve, reject) {
-            let size = calculateResizedWidthHeight(await sharp(image).metadata());
-            let buffer = await sharp(image).resize(size.width, size.height).toBuffer();
+            let buffer = await core.tools.ResizeImage(image);
             let form = new FormData();
             form.append("image", buffer, { filename: generateRandomFilename() });
             form.append("user", user);
@@ -44,8 +43,7 @@ module.exports = {
         return new Promise(async function (resolve, reject) {
             let form = new FormData();
             for (let i = 0; i < images.length; i++) {
-                let size = calculateResizedWidthHeight(await sharp(images[i]).metadata());
-                let buffer = await sharp(images[i]).resize(size.width, size.height).toBuffer();
+                let buffer = await core.tools.ResizeImage(images[i]);
                 form.append("images", buffer, { filename: generateRandomFilename() });
             }
             log(`Sending ${images.length} images to rate to AI backend`, "Info");
@@ -68,8 +66,7 @@ module.exports = {
 
     tag: function (image) {
         return new Promise(async function (resolve, reject) {
-            let size = calculateResizedWidthHeight(await sharp(image).metadata());
-            let buffer = await sharp(image).resize(size.width, size.height).toBuffer();
+            let buffer = await core.tools.ResizeImage(image);
             let form = new FormData();
             log("Sending image to tag to AI backend", "Info");
             form.append("image", buffer, { filename: generateRandomFilename() });
@@ -92,18 +89,6 @@ module.exports = {
 
 function generateRandomFilename() {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + ".jpg";
-}
-
-function calculateResizedWidthHeight(meta) {
-    let width, height;
-    if (meta.width > meta.height) {
-        width = 256;
-        height = Math.round(meta.height * (256 / meta.width));
-    } else {
-        height = 256;
-        width = Math.round(meta.width * (256 / meta.height));
-    }
-    return { width: width, height: height };
 }
 
 function log(message, serenity) {

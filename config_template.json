@@ -11,6 +11,7 @@
         },
         "taggerChannels": ["4321", "1234"],
         "raterChannels": ["4321", "1234"],
+        "ratingcollectorChannels": ["4321"],
         "feedCheckerInterval": 5000,
         "token": "discordtoken",
         "debug": true
@@ -19,6 +20,9 @@
         "debug": true
     },
     "rater": {
+        "debug": true
+    },
+    "ratingcollector": {
         "debug": true
     },
     "sankaku": {

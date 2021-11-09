@@ -13,7 +13,7 @@ module.exports = {
     sendNewImages: sendNewImages,
 };
 
-client.on("messageCreate", (message) => {
+client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
 
     // Rater Part
@@ -54,10 +54,42 @@ client.on("messageCreate", (message) => {
         }
     }
     if (message.guild === null) {
-        // Suggestor Part
         if (message.content.startsWith(config.prefix)) {
             let command = message.content.substring(config.prefix.length);
-            if (command.startsWith("rngfeed start")) {
+            // UserConfig Part
+            if (command.startsWith("config")) {
+                let user = usermap.find((u) => u.name === message.author.username);
+                if (user) {
+                    let msg = "**Current user configuration:**\n```\n";
+                    msg += "ignoreActiveHours: " + (user.ignoreActiveHours ? "True" : "False") + "\n";
+                    msg += "newImageRatingLimit: " + (user.newImageRatingLimit * 10).toFixed(1) + "```\nTo change values, use `" + config.prefix + "set [key] [value]`";
+                    message.channel.send(msg);
+                }
+            } else if (command.startsWith("set")) {
+                let user = usermap.find((u) => u.name === message.author.username);
+                if (user) {
+                    let args = command.split(" ");
+                    if (args[1] === "ignoreActiveHours") {
+                        user.ignoreActiveHours = !user.ignoreActiveHours;
+                        SaveUsermap();
+                        message.channel.send("ignoreActiveHours set to " + (user.ignoreActiveHours ? "True" : "False"));
+                    } else if (args[1] === "newImageRatingLimit") {
+                        let value = parseFloat(args[2]) / 10;
+                        if (value >= 0 && value <= 1) {
+                            user.newImageRatingLimit = value;
+                            SaveUsermap();
+                            message.channel.send("newImageRatingLimit set to " + (user.newImageRatingLimit * 10).toFixed(1));
+                        } else {
+                            message.channel.send("Invalid value, must be between 0 and 10");
+                        }
+                    } else {
+                        message.channel.send(`Invalid key, visit ${config.prefix}help or ${config.prefix}config`);
+                    }
+                }
+            }
+
+            // Suggestor Part
+            else if (command.startsWith("rngfeed start")) {
                 let index = core.sankaku.RNGFeed.find((u) => u.username === message.author.username && u.active[0]);
                 if (index) {
                     message.channel.send("You already have an active feed!");
@@ -89,6 +121,16 @@ client.on("messageCreate", (message) => {
                 StopRNGFeed(ID);
                 log("Stopping RNG feed for " + core.sankaku.RNGFeed[ID].username + " with feedId: " + ID, "Info");
                 message.channel.send("RNG feed stopped");
+            } else if (command.startsWith("help")) {
+                message.channel.send(
+                    "**Feed Commands:**\n" +
+                        "```\n" +
+                        `${config.prefix}config - Shows current configuration\n` +
+                        `${config.prefix}set [key] [value] - Sets a configuration value\n` +
+                        `${config.prefix}rngfeed start [username] [limit] [searchtags] [no_blacklist] - Starts a new RNG feed\n` +
+                        `${config.prefix}rngfeed stop - Stops the current RNG feed\n` +
+                        "```"
+                );
             } else {
                 message.channel.send("Invalid command: " + command);
             }
@@ -99,7 +141,7 @@ client.on("messageCreate", (message) => {
 client.on("ready", async () => {
     log("Ready!", "Info");
     await fetchUsers();
-    core.sankaku.InitNewsFeed();
+    core.sankaku.InitNewsFeed(usermap);
 });
 
 async function sendNewImages() {
@@ -235,6 +277,10 @@ function IsActiveHours() {
     return hour >= config.activeHours.start && hour <= config.activeHours.end;
 }
 
+function SaveUsermap() {
+    fs.writeFileSync("./data/usermap.json", JSON.stringify(usermap, null, 4));
+}
+
 function _init(coreprogram, configuration) {
     core = coreprogram;
     config = configuration;
@@ -263,6 +309,7 @@ function _init(coreprogram, configuration) {
         return;
     } else {
         usermap = JSON.parse(fs.readFileSync("./data/usermap.json"));
+        core.dcbot.usermap = usermap;
     }
     log("Starting...", "Info");
     client.login(config.token).catch((err) => {
