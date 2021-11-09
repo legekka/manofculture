@@ -1,15 +1,31 @@
 {
     "aibackend": {
-        "backendUrl": "http://backendip:port/",
+        "backendUrl": "http://backend:port/",
         "debug": true
     },
     "dcbot": {
-        "token": "discordbottoken"
+        "prefix": "!",
+        "activeHours": {
+            "start": 8,
+            "end": 20
+        },
+        "taggerChannels": ["4321", "1234"],
+        "raterChannels": ["4321", "1234"],
+        "feedCheckerInterval": 5000,
+        "token": "discordtoken",
+        "debug": true
+    },
+    "tagger": {
+        "debug": true
+    },
+    "rater": {
+        "debug": true
     },
     "sankaku": {
         "username": "username",
         "password": "password",
         "newImageInterval": 1800000,
-        "pageLimit": 100
+        "pageLimit": 100,
+        "debug": true
     }
 }
