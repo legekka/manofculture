@@ -10,11 +10,12 @@ My main goal is to everyone be able to have a personalized high quality neural n
 - Random Image feed from sankaku with search parameters
 - Image tagging in specified discord channels
 - Image rating in specified discord channels
-- User Image rating collection in specified discord channels
+- User feedback image rating collection in specified discord channels
 
 ## Features that will be implemented
 
-Current task: scheduled model retraining
+Current task:
+- scheduled model retraining
 
 Coming up:
 - Rest API for non-discord related usage
