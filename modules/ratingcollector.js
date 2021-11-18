@@ -1,5 +1,9 @@
+const fs = require("fs");
+
 let core;
 let config;
+
+let emotes;
 
 module.exports = {
     init: _init,
@@ -8,6 +12,11 @@ module.exports = {
 function _init(coreprogram, configuration) {
     core = coreprogram;
     config = configuration;
+    if (!fs.existsSync("./data/emotes.json")) {
+        log("Emotes file not found!", "Error");
+        return;
+    }
+
     log("Initialized", "Info");
 }
 

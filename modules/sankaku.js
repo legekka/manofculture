@@ -112,7 +112,7 @@ async function CheckNewImages() {
             core.sankaku.NewsFeedArray.push(item);
         }
     }
-    core.dcbot.sendNewImages();
+    core.suggestor.sendNewImages();
 }
 
 async function GetRandomImages(rngFeedItem) {
@@ -128,7 +128,9 @@ async function GetRandomImages(rngFeedItem) {
     let submissions = await client.searchSubmissions({ tags: searchtags, order_by: "random", limit: config.pageLimit });
     if (submissions.data.length == 0) {
         log("No images found", "Warning");
-        return feedArray.push({ error: "No images found", username: username, feedId: options.feedId });
+        feedArray.push({ error: "No images found", username: username, feedId: options.feedId });
+        core.suggestor.sendRNGImages(options.feedId);
+        return;
     }
 
     submissions.data = submissions.data.filter((submission) => !rngFeedItem.ids.includes(submission.id));
@@ -138,7 +140,9 @@ async function GetRandomImages(rngFeedItem) {
     });
     if (submissions.data.length == 0) {
         log("No more images", "Warning");
-        return feedArray.push({ error: "No more images", username: username, feedId: options.feedId });
+        feedArray.push({ error: "No more images", username: username, feedId: options.feedId });
+        core.suggestor.sendRNGImages(options.feedId);
+        return;
     }
 
     if (!rngFeedItem.active[0]) {
@@ -209,7 +213,7 @@ async function GetRandomImages(rngFeedItem) {
         for (let item of output) {
             feedArray.push(item);
         }
-        core.dcbot.sendRNGImages(options.feedId);
+        core.suggestor.sendRNGImages(options.feedId);
     }
 }
 

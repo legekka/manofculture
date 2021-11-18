@@ -8,7 +8,7 @@ module.exports = {
 
 async function ResizeImage(image) {
     let size = calculateResizedWidthHeight(await sharp(image).metadata());
-    return await sharp(image).resize(size.width, size.height).toBuffer();
+    return await sharp(image).resize(size.width, size.height).toFormat("jpeg").toBuffer();
 }
 
 function calculateResizedWidthHeight(meta) {

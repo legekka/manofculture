@@ -23,8 +23,13 @@ async function _rateImage(url, filename) {
         log("Error downloading image: " + file.error, "Error");
         return { error: "Error downloading image: " + file.error };
     }
-    let result = await core.aibackend.rate(file, "all");
-
+    let result;
+    try {
+        result = await core.aibackend.rate(file, "all");
+    } catch (e) {
+        log(e, "Error");
+        return { error: "aibackend error" };
+    }
     let ratings = [];
 
     for (let i = 0; i < result.rating.length; i++) {
@@ -49,7 +54,7 @@ function createEmbed(url, ratings) {
         desc += `**${ratings[i].name}**'s rating: **${(ratings[i].rating * 10).toFixed(1)}**/10 | *${roundRating(ratings[i].rating)}*\n`;
     }
     embed.setDescription(desc);
-    embed.setFooter(`Using RaterNN1S personalized models`, "https://cdn.discordapp.com/avatars/881795555167203328/9819e1d7909739cecd114b81311cb252.webp?size=128");
+    embed.setFooter(`Using RaterNN1S personalized models`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
     return embed;
 }
 
@@ -71,10 +76,38 @@ function roundRating(rating) {
         return 3;
     }
 }
+
+function initEventHandler() {
+    core.dcbot.client.on("messageCreate", (message) => {
+        if (message.author.bot) return;
+
+        if (config.raterChannels.includes(message.channel.id)) {
+            if (message.attachments.size > 0) {
+                let url = message.attachments.first().url;
+                let filename = message.attachments.first().name;
+                core.rater.RateImage(url, filename).then((embed) => {
+                    if (!embed.error) message.channel.send({ embeds: [embed] });
+                });
+            } else if (message.content.includes("http")) {
+                let url = message.content.split(" ").find((w) => w.includes("http"));
+                let extension = url.split("/").pop().split(".").pop();
+                let filename = message.id + "." + extension;
+                core.rater.RateImage(url, filename).then((embed) => {
+                    if (!embed.error) message.channel.send({ embeds: [embed] });
+                });
+            }
+        }
+    });
+}
+
 function _init(coreprogram, configuration) {
     core = coreprogram;
     config = configuration;
-
+    if (!config.raterChannels) {
+        log("No rater channels defined!", "Error");
+        return;
+    }
+    initEventHandler();
     log("Initialized", "Info");
 }
 

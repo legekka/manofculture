@@ -24,8 +24,13 @@ async function _tagImage(url, filename) {
         log("Error downloading image: " + file.error, "Error");
         return { error: "Error downloading image: " + file.error };
     }
-    let result = await core.aibackend.tag(file);
-
+    let result;
+    try {
+        result = await core.aibackend.tag(file);
+    } catch (e) {
+        log(e, "Error");
+        return { error: "aibackend error" };
+    }
     let tags = [];
     for (let i = 0; i < result.labels.length; i++) {
         tags.push({
@@ -54,7 +59,7 @@ function createEmbed(url, tags) {
         }
     });
     embed.setDescription(desc);
-    embed.setFooter(`Using TaggerNN4S (989 classes)`, "https://cdn.discordapp.com/avatars/881795555167203328/9819e1d7909739cecd114b81311cb252.webp?size=128");
+    embed.setFooter(`Using TaggerNN4S (989 classes)`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
     return embed;
 }
 
@@ -93,9 +98,38 @@ function generateEmbedColor(tags) {
     }
 }
 
+function initEventHandler() {
+    core.dcbot.client.on("messageCreate", (message) => {
+        if (message.author.bot) return;
+
+        if (config.taggerChannels.includes(message.channel.id)) {
+            if (message.attachments.size > 0) {
+                let url = message.attachments.first().url;
+                let filename = message.attachments.first().name;
+                core.tagger.TagImage(url, filename).then((embed) => {
+                    if (!embed.error) message.channel.send({ embeds: [embed] });
+                    else message.channel.send("Error: " + embed.error);
+                });
+            } else if (message.content.includes("http")) {
+                let url = message.content.split(" ").find((w) => w.includes("http"));
+                let extension = url.split("/").pop().split(".").pop();
+                let filename = message.id + "." + extension;
+                core.tagger.TagImage(url, filename).then((embed) => {
+                    if (!embed.error) message.channel.send({ embeds: [embed] });
+                    else message.channel.send("Error: " + embed.error);
+                });
+            }
+        }
+    });
+}
+
 function _init(coreprogram, configuration) {
     core = coreprogram;
     config = configuration;
+    if (!config.taggerChannels) {
+        log("No tagger channels defined!", "Error");
+        return;
+    }
     if (!fs.existsSync("./data/colors.json")) {
         log("colors.json not found in data folder", "Error");
         return;
