@@ -1,6 +1,6 @@
 # The Man Of Culture
 
-A true Man of Culture AI assisted image tagger, personalized rater and suggester. It is currently in early development however it already able to do some basic stuff. The AI-Backend is currently private, but I am going to make it public when it is finished.
+A true Man of Culture AI assisted image tagger, personalized rater and suggester. It is currently in early development however it is already able to do some basic stuff. The AI-Backend is currently private, but I am going to make it public when it is finished.
 
 My main goal is to everyone be able to have a personalized high quality neural network model representing their taste in anime pictures. This Bot is the front end of the nasty AI stuff, but it will be able to fully maintain the backend (sending new learning data, creating new user models, configuring feeds)
 
