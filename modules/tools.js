@@ -1,10 +1,30 @@
 const chalk = require("chalk");
 const sharp = require("sharp");
+const download = require("download");
 
 module.exports = {
     log: log,
     ResizeImage: ResizeImage,
+    DownloadPromise: DownloadPromise,
 };
+
+function DownloadPromise(url, conversion) {
+    return new Promise(async (resolve, reject) => {
+        let filebuffer = await download(url, { throwHttpErrors: false });
+        if (filebuffer.length == undefined) {
+            resolve({ error: "Failed to download image" });
+            return;
+        }
+        if (filebuffer.toString().startsWith("<!DOCTYPE html>")) {
+            resolve({ error: "Failed to download image" });
+            return;
+        }
+        if (conversion) {
+            filebuffer = await sharp(filebuffer).toFormat("jpeg").toBuffer();
+        }
+        resolve(filebuffer);
+    });
+}
 
 async function ResizeImage(image) {
     let size = calculateResizedWidthHeight(await sharp(image).metadata());

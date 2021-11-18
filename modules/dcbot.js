@@ -1,5 +1,8 @@
 const { Client, Intents, MessageEmbed, MessageAttachment } = require("discord.js");
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MEMBERS], partials: ["CHANNEL"] });
+const client = new Client({
+    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+    partials: ["CHANNEL"],
+});
 const fs = require("fs");
 
 let usermap;
@@ -13,7 +16,6 @@ module.exports = {
 
 client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-
     // UserConfig Part
     if (message.guild === null) {
         if (message.content.startsWith(config.prefix)) {

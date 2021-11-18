@@ -28,7 +28,6 @@ module.exports = {
         }, 1000 * 60 * 30);
         CheckNewImages();
     },
-    DownloadPromise: DownloadPromise,
 };
 
 async function CheckNewImages() {
@@ -46,7 +45,7 @@ async function CheckNewImages() {
                     filename: submission.id + ".jpg",
                     preview_url: submission.preview_url,
                     sample_url: submission.sample_url ? submission.sample_url : submission.file_url,
-                    file: DownloadPromise(submission.preview_url),
+                    file: core.tools.DownloadPromise(submission.preview_url),
                 });
                 data.push(submission.id);
             }
@@ -91,7 +90,7 @@ async function CheckNewImages() {
                         filename: newData[i].filename,
                         user: users[j],
                         rating: ratings[i][j],
-                        file: DownloadPromise(newData[i].sample_url, true),
+                        file: core.tools.DownloadPromise(newData[i].sample_url, true),
                     });
                 }
             }
@@ -156,7 +155,7 @@ async function GetRandomImages(rngFeedItem) {
                 filename: submission.id + ".jpg",
                 preview_url: submission.preview_url,
                 sample_url: submission.sample_url ? submission.sample_url : submission.file_url,
-                file: DownloadPromise(submission.preview_url),
+                file: core.tools.DownloadPromise(submission.preview_url),
             });
         }
     }
@@ -192,7 +191,7 @@ async function GetRandomImages(rngFeedItem) {
                     user: username,
                     rating: result.ratings[i],
                     feedId: options.feedId,
-                    file: DownloadPromise(newData[i].sample_url, true),
+                    file: core.tools.DownloadPromise(newData[i].sample_url, true),
                 });
             }
         }
@@ -229,24 +228,6 @@ function CreateRNGFeedArray(options) {
     let feedId = core.sankaku.RNGFeed.length - 1;
     rngFeedItem.options.feedId = feedId;
     return feedId;
-}
-
-function DownloadPromise(url, conversion) {
-    return new Promise(async (resolve, reject) => {
-        let filebuffer = await download(url, { throwHttpErrors: false });
-        if (filebuffer.length == undefined) {
-            resolve({ error: "Failed to download image" });
-            return;
-        }
-        if (filebuffer.toString().startsWith("<!DOCTYPE html>")) {
-            resolve({ error: "Failed to download image" });
-            return;
-        }
-        if (conversion) {
-            filebuffer = await sharp(filebuffer).toFormat("jpeg").toBuffer();
-        }
-        resolve(filebuffer);
-    });
 }
 
 function IsValidSubmission(submission, no_blacklist) {

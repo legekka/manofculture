@@ -18,7 +18,7 @@ async function _rateImage(url, filename) {
         log("Invalid file extension: " + extension, "Warning");
         return { error: "Invalid file extension: " + extension };
     }
-    let file = await core.sankaku.DownloadPromise(url);
+    let file = await core.tools.DownloadPromise(url);
     if (file.error) {
         log("Error downloading image: " + file.error, "Error");
         return { error: "Error downloading image: " + file.error };
