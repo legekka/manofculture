@@ -142,6 +142,10 @@ function initEventHandler() {
             let command = message.content.substring(1);
             // Suggestor Part
             if (command.startsWith("rngfeed start")) {
+                if (!config.enableRNGFeed) {
+                    message.channel.send("RNG Feed is disabled due to the lack of ai-backend's GPU performance");
+                    return;
+                }
                 let index = core.sankaku.RNGFeed.find((u) => u.username === message.author.username && u.active[0]);
                 if (index) {
                     message.channel.send("You already have an active feed!");
@@ -163,6 +167,10 @@ function initEventHandler() {
                 log(text, "Info");
                 message.channel.send(text);
             } else if (command.startsWith("rngfeed stop")) {
+                if (!config.enableRNGFeed) {
+                    message.channel.send("RNG Feed is disabled due to the lack of ai-backend's GPU performance");
+                    return;
+                }
                 // find feedId with user which is active
                 let feed = core.sankaku.RNGFeed.find((r) => r.active[0] && r.username === message.author.username);
                 if (!feed) {
@@ -184,6 +192,10 @@ function _init(coreprogram, configuration) {
     if (!config.activeHours) {
         log("No active hours specified in config.json", "Error");
         return;
+    }
+    if (config.enableRNGFeed === undefined) {
+        log("RNGFeed avability was not defined in config.json, disabling", "Error");
+        config.enableRNGFeed = false;
     }
     usermap = core.dcbot.usermap;
     initEventHandler();

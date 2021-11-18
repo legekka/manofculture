@@ -5,24 +5,27 @@
     },
     "dcbot": {
         "prefix": "!",
+        "token": "token",
+        "debug": true
+    },
+    "suggestor": {
         "activeHours": {
             "start": 8,
             "end": 20
         },
-        "taggerChannels": ["4321", "1234"],
-        "raterChannels": ["4321", "1234"],
-        "ratingcollectorChannels": ["4321"],
-        "feedCheckerInterval": 5000,
-        "token": "discordtoken",
+        "enableRNGFeed": true,
         "debug": true
     },
     "tagger": {
+        "taggerChannels": ["1234"],
         "debug": true
     },
     "rater": {
+        "raterChannels": ["1234"],
         "debug": true
     },
     "ratingcollector": {
+        "ratingcollectorChannels": ["4321"],
         "debug": true
     },
     "sankaku": {
