@@ -32,18 +32,20 @@ async function getTrainingStatus() {
     return result;
 }
 
-async function trainUser(user) {
+async function trainUser(user, forced) {
     let username;
     if (user == "all") {
         username = "all";
     } else {
         username = user.name;
     }
-    if (username == "all" && core.ratingcollector.data.length == 0) {
-        return { error: "No users needed to train" };
-    }
-    if (username != "all" && !core.ratingcollector.news.includes(username)) {
-        return { error: "Training is not needed for " + username };
+    if (!forced) {
+        if (username == "all" && core.ratingcollector.data.length == 0) {
+            return { error: "No users needed to train" };
+        }
+        if (username != "all" && !core.ratingcollector.news.includes(username)) {
+            return { error: "Training is not needed for " + username };
+        }
     }
     let result = await updateBackend();
     if (result.error) {
@@ -129,6 +131,23 @@ function initEventHandler() {
                     });
                 } else {
                     message.channel.send("You are not registered!");
+                }
+            } else if (command.startsWith("retrain")) {
+                if (message.author.id != config.ownerID) {
+                    message.channel.send("You are not allowed to retrain others!");
+                    return;
+                }
+                let user = core.dcbot.usermap.find((user) => user.name == command.split(" ")[1]);
+                if (user) {
+                    trainUser(user, true).then((result) => {
+                        if (result.error) {
+                            message.channel.send(result.error);
+                        } else {
+                            message.channel.send(result.success);
+                        }
+                    });
+                } else {
+                    message.channel.send("User not found!");
                 }
             } else if (command == "status") {
                 getTrainingStatus().then((result) => {
