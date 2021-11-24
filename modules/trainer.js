@@ -120,34 +120,36 @@ function initEventHandler() {
                     }
                 });
             } else if (command == "retrain") {
-                let user = core.dcbot.usermap.find((user) => user.userid == message.author.id);
-                if (user) {
-                    trainUser(user).then((result) => {
-                        if (result.error) {
-                            message.channel.send(result.error);
-                        } else {
-                            message.channel.send(result.success);
-                        }
-                    });
+                if (message.content.split(" ").length == 1) {
+                    let user = core.dcbot.usermap.find((user) => user.userid == message.author.id);
+                    if (user) {
+                        trainUser(user).then((result) => {
+                            if (result.error) {
+                                message.channel.send(result.error);
+                            } else {
+                                message.channel.send(result.success);
+                            }
+                        });
+                    } else {
+                        message.channel.send("You are not registered!");
+                    }
                 } else {
-                    message.channel.send("You are not registered!");
-                }
-            } else if (command.startsWith("retrain")) {
-                if (message.author.id != config.ownerID) {
-                    message.channel.send("You are not allowed to retrain others!");
-                    return;
-                }
-                let user = core.dcbot.usermap.find((user) => user.name == command.split(" ")[1]);
-                if (user) {
-                    trainUser(user, true).then((result) => {
-                        if (result.error) {
-                            message.channel.send(result.error);
-                        } else {
-                            message.channel.send(result.success);
-                        }
-                    });
-                } else {
-                    message.channel.send("User not found!");
+                    if (message.author.id != config.ownerID) {
+                        message.channel.send("You are not allowed to force retrain users!");
+                        return;
+                    }
+                    let user = core.dcbot.usermap.find((user) => user.name == message.content.split(" ")[1]);
+                    if (user) {
+                        trainUser(user, true).then((result) => {
+                            if (result.error) {
+                                message.channel.send(result.error);
+                            } else {
+                                message.channel.send(result.success);
+                            }
+                        });
+                    } else {
+                        message.channel.send("User not found!");
+                    }
                 }
             } else if (command == "status") {
                 getTrainingStatus().then((result) => {
