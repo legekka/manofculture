@@ -9,7 +9,7 @@ let usermap;
 
 let core;
 let config;
-
+let logChannel;
 let startTime;
 
 module.exports = {
@@ -79,6 +79,10 @@ client.on("messageCreate", async (message) => {
 client.on("ready", async () => {
     log("Ready!", "Info");
     await fetchUsers();
+    if (config.logChannel) {
+        logChannel = client.channels.cache.get(config.logChannel);
+    }
+    core.dcbot.logChannel = logChannel;
 });
 
 async function fetchUsers() {

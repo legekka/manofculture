@@ -12,6 +12,7 @@ const core = {
     trainer: require("./modules/trainer"),
 };
 
+core.tools.init(core);
 core.aibackend.init(core, config.aibackend);
 core.dcbot.init(core, config.dcbot);
 core.suggestor.init(core, config.suggestor);

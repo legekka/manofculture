@@ -2,7 +2,12 @@ const chalk = require("chalk");
 const sharp = require("sharp");
 const download = require("download");
 
+let core;
+
 module.exports = {
+    init: (coreprogram) => {
+        core = coreprogram;
+    },
     log: log,
     ResizeImage: ResizeImage,
     DownloadPromise: DownloadPromise,
@@ -77,13 +82,18 @@ function log(message, modulename, serenity) {
     }
 
     var dateString = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+    var messageString;
     if (modulename && serenity) {
-        console.log("[" + dateString + "] " + "[" + modulename + "] " + "[" + serenity + "] " + message);
+        messageString = "[" + dateString + "] " + "[" + modulename + "] " + "[" + serenity + "] " + message;
     } else if (modulename) {
-        console.log("[" + dateString + "] " + "[" + modulename + "] " + message);
+        messageString = "[" + dateString + "] " + "[" + modulename + "] " + message;
     } else if (serenity) {
-        console.log("[" + dateString + "] " + "[" + serenity + "] " + message);
+        messageString = "[" + dateString + "] " + "[" + serenity + "] " + message;
     } else {
-        console.log("[" + dateString + "] " + message);
+        messageString = "[" + dateString + "] " + message;
+    }
+    console.log(messageString);
+    if (core.dcbot.logChannel) {
+        core.dcbot.logChannel.send(messageString);
     }
 }
