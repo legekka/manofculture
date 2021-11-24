@@ -138,8 +138,8 @@ function initEventHandler() {
     core.dcbot.client.on("messageCreate", async (message) => {
         if (message.author.bot) return;
 
-        if (message.guild === null) {
-            let command = message.content.substring(1);
+        if (message.guild === null && message.content.startsWith(core.dcbot.prefix)) {
+            let command = message.content.substring(core.dcbot.prefix.length);
             // Suggestor Part
             if (command.startsWith("rngfeed start")) {
                 if (!config.enableRNGFeed) {

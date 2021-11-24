@@ -33,7 +33,11 @@ function createNewDataEntry(image, username, userid, rating) {
     } else {
         entry.rating = rating;
     }
+    if (!news.find((username) => username === user.name)) {
+        news.push(user.name);
+    }
     fs.writeFileSync("./training/data.json", JSON.stringify(data));
+    fs.writeFileSync("./training/news.json", JSON.stringify(news));
 }
 
 function initEventHandler() {
@@ -124,8 +128,15 @@ function _init(coreprogram, configuration) {
         log("Training data file not found, creating a new one", "Warning");
         fs.writeFileSync("./training/data.json", JSON.stringify([]));
     }
+    if (!fs.existsSync("./training/news.json")) {
+        log("news.json not found not found, creating a new one.", "Warning");
+        fs.writeFileSync("./training/news.json", JSON.stringify([]));
+    }
     emotes = JSON.parse(fs.readFileSync("./data/emotes.json"));
     data = JSON.parse(fs.readFileSync("./training/data.json"));
+    news = JSON.parse(fs.readFileSync("./training/news.json"));
+    core.ratingcollector.data = data;
+    core.ratingcollector.news = news;
     initEventHandler();
     log("Initialized", "Info");
 }

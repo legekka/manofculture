@@ -10,6 +10,8 @@ let usermap;
 let core;
 let config;
 
+let startTime;
+
 module.exports = {
     init: _init,
 };
@@ -49,6 +51,12 @@ client.on("messageCreate", async (message) => {
                         message.channel.send(`Invalid key, visit ${config.prefix}help or ${config.prefix}config`);
                     }
                 }
+            } else if (command.startsWith("uptime")) {
+                let uptime = new Date() - startTime;
+                let hours = Math.floor(uptime / 3600000);
+                let minutes = Math.floor((uptime % 3600000) / 60000);
+                let seconds = Math.floor((uptime % 60000) / 1000);
+                message.channel.send(`Uptime: ${hours}h ${minutes}m ${seconds}s`);
             } else if (command.startsWith("help")) {
                 message.channel.send(
                     "**Feed Commands:**\n" +
@@ -57,6 +65,10 @@ client.on("messageCreate", async (message) => {
                         `${config.prefix}set [key] [value] - Sets a configuration value\n` +
                         `${config.prefix}rngfeed start [username] [limit] [searchtags] [no_blacklist] - Starts a new RNG feed\n` +
                         `${config.prefix}rngfeed stop - Stops the current RNG feed\n` +
+                        `${config.prefix}retrain - Retrains your Rating Model with your new rated images\n` +
+                        `${config.prefix}status - Shows the retraining progress\n` +
+                        `${config.prefix}uptime - Shows the uptime of the bot\n` +
+                        `${config.prefix}help - Shows this help message\n` +
                         "```"
                 );
             }
@@ -67,7 +79,9 @@ client.on("messageCreate", async (message) => {
 client.on("ready", async () => {
     log("Ready!", "Info");
     await fetchUsers();
-    core.sankaku.InitNewsFeed(usermap);
+    if (config.enableNewsFeed) {
+        core.sankaku.InitNewsFeed(usermap);
+    }
 });
 
 async function fetchUsers() {
@@ -110,6 +124,8 @@ function _init(coreprogram, configuration) {
         log(err, "Error");
     });
     core.dcbot.client = client;
+    core.dcbot.prefix = config.prefix;
+    startTime = new Date();
 }
 
 function log(message, serenity) {

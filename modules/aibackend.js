@@ -1,6 +1,7 @@
 const axios = require("axios");
 const FormData = require("form-data");
 const sharp = require("sharp");
+const util = require("util");
 
 let core;
 let config;
@@ -14,6 +15,100 @@ module.exports = {
             return;
         }
         log("AI Backend initialized", "Info");
+    },
+
+    getTrainingStatus: function () {
+        return new Promise((resolve, reject) => {
+            axios
+                .get(config.backendUrl + "/training/status")
+                .then((response) => {
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+    },
+
+    trainUser: function (user) {
+        return new Promise(async (resolve, reject) => {
+            let form = new FormData();
+            form.append("user", user);
+            log("Training user " + user, "Info");
+            try {
+                let promise = axios.post(config.backendUrl + "training/train", form, {
+                    headers: form.getHeaders(),
+                });
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+                if (util.inspect(promise).includes("pending")) resolve({});
+                else resolve((await promise).data);
+            } catch (error) {
+                log("Error while training user " + user, "Error");
+                reject({ error: error });
+            }
+        });
+    },
+
+    updateTrainingData: function (data) {
+        return new Promise((resolve, reject) => {
+            let form = new FormData();
+            form.append("data", JSON.stringify(data));
+            log("Updating training data", "Info");
+            axios
+                .post(config.backendUrl + "training/update", form, {
+                    headers: form.getHeaders(),
+                })
+                .then((response) => {
+                    log("Training data updated", "Info");
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    log("Error updating training data", "Error");
+                    reject(error);
+                });
+        });
+    },
+
+    sendImages: function (images, filenames) {
+        return new Promise((resolve, reject) => {
+            let form = new FormData();
+            for (let i = 0; i < images.length; i++) {
+                form.append("images", images[i], filenames[i]);
+            }
+            log(`Sending ${images.length} training images to AI backend`, "Info");
+            axios
+                .post(config.backendUrl + "training/addimages", form, {
+                    headers: form.getHeaders(),
+                })
+                .then((response) => {
+                    log("Training images sent to AI backend", "Info");
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    log("Error sending training images to AI backend", "Error");
+                    reject(error);
+                });
+        });
+    },
+
+    sendImage: function (image, filename) {
+        return new Promise((resolve, reject) => {
+            let form = new FormData();
+            form.append("image", image, { filename: filename });
+            log("Sending training image to AI Backend", "Info");
+            axios
+                .post(config.backendUrl + "training/addimage", form, {
+                    headers: form.getHeaders(),
+                })
+                .then((response) => {
+                    log("Image sent succesfully to AI Backend", "Info");
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    log("Error sending image to AI Backend", "Error");
+                    reject(error);
+                });
+        });
     },
 
     rate: function (image, user) {

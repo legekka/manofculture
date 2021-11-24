@@ -135,6 +135,7 @@ function _init(coreprogram, configuration) {
         return;
     }
     colors = JSON.parse(fs.readFileSync("./data/colors.json"));
+    initEventHandler();
     log("Initialized", "Info");
 }
 
