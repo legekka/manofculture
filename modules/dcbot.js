@@ -79,9 +79,6 @@ client.on("messageCreate", async (message) => {
 client.on("ready", async () => {
     log("Ready!", "Info");
     await fetchUsers();
-    if (config.enableNewsFeed) {
-        core.sankaku.InitNewsFeed(usermap);
-    }
 });
 
 async function fetchUsers() {

@@ -135,6 +135,11 @@ function createOptionsFromMessage(message) {
 }
 
 function initEventHandler() {
+    core.dcbot.client.on("ready", () => {
+        if (config.enableNewsFeed) {
+            core.sankaku.InitNewsFeed(usermap);
+        }
+    });
     core.dcbot.client.on("messageCreate", async (message) => {
         if (message.author.bot) return;
 
