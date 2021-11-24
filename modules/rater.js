@@ -51,30 +51,11 @@ function createEmbed(url, ratings) {
     embed.setColor("#0066ff");
     let desc = "";
     for (let i = 0; i < ratings.length; i++) {
-        desc += `**${ratings[i].name}**'s rating: **${(ratings[i].rating * 10).toFixed(1)}**/10 | *${roundRating(ratings[i].rating)}*\n`;
+        desc += `**${ratings[i].name}**'s rating: **${(ratings[i].rating * 10).toFixed(1)}**/10\n`;
     }
     embed.setDescription(desc);
     embed.setFooter(`Using RaterNN1S personalized models`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
     return embed;
-}
-
-function roundRating(rating) {
-    let d = 0.166 / 2;
-    if (rating < d) {
-        return -3;
-    } else if (rating < 0.166 + d) {
-        return -2;
-    } else if (rating < 0.333 + d) {
-        return -1;
-    } else if (rating < 0.5 + d) {
-        return 0;
-    } else if (rating < 0.666 + d) {
-        return 1;
-    } else if (rating < 0.833 + d) {
-        return 2;
-    } else {
-        return 3;
-    }
 }
 
 function initEventHandler() {
