@@ -66,7 +66,7 @@ client.on("messageCreate", async (message) => {
                         `${config.prefix}rngfeed start [username] [limit] [searchtags] [no_blacklist] - Starts a new RNG feed\n` +
                         `${config.prefix}rngfeed stop - Stops the current RNG feed\n` +
                         `${config.prefix}retrain - Retrains your Rating Model with your new rated images\n` +
-                        `${config.prefix}status - Shows the retraining progress\n` +
+                        `${config.prefix}status - Shows the retraining status\n` +
                         `${config.prefix}uptime - Shows the uptime of the bot\n` +
                         `${config.prefix}help - Shows this help message\n` +
                         "```"

@@ -139,7 +139,11 @@ function initEventHandler() {
                     if (result.error) {
                         message.channel.send(result.error);
                     } else {
-                        message.channel.send(`${"```"}\nis_training: ${result.is_training}\nCurrent User: ${result.user}\nProgress: ${result.progress * 100}%\n${"```"}`);
+                        message.channel.send(
+                            `Users needed to retrain: ${core.ratingcollector.news.join(",")}\nai-backend:${"```"}\nis_training: ${result.is_training}\nCurrent User: ${result.user}\nProgress: ${
+                                result.progress * 100
+                            }%\n${"```"}`
+                        );
                     }
                 });
             }
