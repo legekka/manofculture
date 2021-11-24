@@ -118,10 +118,6 @@ function initEventHandler() {
                     }
                 });
             } else if (command == "retrain") {
-                if (message.author.id != config.ownerID) {
-                    message.channel.send("You are not allowed to use this command!");
-                    return;
-                }
                 let user = core.dcbot.usermap.find((user) => user.userid == message.author.id);
                 if (user) {
                     trainUser(user).then((result) => {
