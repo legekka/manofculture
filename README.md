@@ -11,11 +11,10 @@ My main goal is to everyone be able to have a personalized high quality neural n
 - Image tagging in specified discord channels
 - Image rating in specified discord channels
 - User feedback image rating collection in specified discord channels
+- Manual user model retraining based on new rated images
+- Scheduled user model retraining
 
 ## Features that will be implemented
-
-Current task:
-- scheduled model retraining
 
 Coming up:
 - Rest API for non-discord related usage
