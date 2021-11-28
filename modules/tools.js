@@ -1,6 +1,7 @@
 const chalk = require("chalk");
 const sharp = require("sharp");
 const download = require("download");
+const fs = require("fs");
 
 let core;
 
@@ -96,4 +97,5 @@ function log(message, modulename, serenity) {
     if (core.dcbot.logChannel) {
         core.dcbot.logChannel.send(messageString);
     }
+    fs.appendFileSync("logs/log.txt", messageString + "\n");
 }
