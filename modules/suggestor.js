@@ -55,25 +55,45 @@ async function sendRNGImages(ID) {
 }
 
 async function sendNewImages() {
-    let newImages = [];
-    for (let image of core.sankaku.NewsFeedArray) {
-        newImages.push(image);
-    }
-    for (let image of newImages) {
-        let user = usermap.find((u) => u.name === image.user);
+    for (let list of core.sankaku.NewsFeedArray) {
+        let user = usermap.find((u) => u.name === list.user);
         if (user) {
             if (!user.ignoreActiveHours) {
                 if (!IsActiveHours()) {
                     continue;
                 }
             }
-            log(`Sending image ${image.id} to ${user.name}`, "Info");
-            await sendFeedEmbeds([image], user, "New image!");
-            let index = core.sankaku.NewsFeedArray.indexOf(image);
-            core.sankaku.NewsFeedArray.splice(index, 1);
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            
+            let images = [];
+            for (let i = 0; i < list.images.length; i++) {
+                images.push(list.images[i].file);
+            }
+
+            let montage = await core.tools.createBox(images);
+
+            await sendMontage(montage, user, list);
         }
     }
+
+    // let newImages = [];
+    // for (let image of core.sankaku.NewsFeedArray) {
+    //     newImages.push(image);
+    // }
+    // for (let image of newImages) {
+    //     let user = usermap.find((u) => u.name === image.user);
+    //     if (user) {
+    //         if (!user.ignoreActiveHours) {
+    //             if (!IsActiveHours()) {
+    //                 continue;
+    //             }
+    //         }
+    //         log(`Sending image ${image.id} to ${user.name}`, "Info");
+    //         await sendFeedEmbeds([image], user, "New image!");
+    //         let index = core.sankaku.NewsFeedArray.indexOf(image);
+    //         core.sankaku.NewsFeedArray.splice(index, 1);
+    //         await new Promise((resolve) => setTimeout(resolve, 500));
+    //     }
+    // }
 }
 
 async function StopRNGFeed(ID, immediately) {
@@ -87,6 +107,19 @@ async function StopRNGFeed(ID, immediately) {
     log("Feed deleted: " + ID, "Info");
 }
 
+async function sendMontage(montageimage, user, feedlist) {
+    let embed = new MessageEmbed();
+    let attachment = new MessageAttachment(montageimage, "montage.jpg");
+    embed.setTitle("New images!");
+    
+    let desc = "";
+    for (let i = 0; i < feedlist.images.length; i++) {
+        desc += `${i}.: https://sankaku.app/post/show/${feedlist.images[i].id} | **${feedlist.images[i].rating}**\n`;
+    }
+    embed.setImage("attachment://montage.jpg");
+    await user.discordUser.send({embed: embed, files: [attachment]});
+}
+
 async function sendFeedEmbeds(images, user, title) {
     let embeds = [];
     let attachments = [];
@@ -95,7 +128,7 @@ async function sendFeedEmbeds(images, user, title) {
         let attachment = new MessageAttachment(image.file, image.filename);
         embed.setTitle(title || "Original link");
         embed.setDescription("Rating: **" + (image.rating * 10).toFixed(1) + "**");
-        embed.setURL("https://beta.sankakucomplex.com/post/show/" + image.id);
+        embed.setURL("https://sankaku.app/post/show/" + image.id);
         embed.setImage("attachment://" + image.filename);
         embeds.push(embed);
         attachments.push(attachment);

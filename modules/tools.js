@@ -12,6 +12,7 @@ module.exports = {
     log: log,
     ResizeImage: ResizeImage,
     DownloadPromise: DownloadPromise,
+    createBox: createBox,
 };
 
 function DownloadPromise(url, conversion) {
@@ -48,6 +49,197 @@ function calculateResizedWidthHeight(meta) {
     }
     return { width: width, height: height };
 }
+
+
+async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
+    if (!maxWidth) {
+        maxWidth = 2000;
+    }
+    if (!minHeight) {
+        minHeight = 400;
+    }
+    if (!maxHeight) {
+        maxHeight = 750;
+    }
+    if (!gapsize) {
+        gapsize = 10;
+    }
+
+    let rows = [];
+
+    if (images.length > 4) {
+
+        while (images.length > 0) {
+            let row = createRow(images);
+            if (images.length - row.length == 1) {
+                if (row.length > 2) {
+                    let imagesToRow = images.splice(0, row.length - 1);
+                    rows.push(createRow(imagesToRow));
+                } else {
+                    rows.push(createForcedRow(images));
+                    images = [];
+                }
+            } else {
+                rows.push(row);
+                images.splice(0, row.length);
+            }
+        }
+    } else if (images.length > 3) {
+        let firsthalf = images.splice(0, 2);
+        rows.push(createForcedRow(firsthalf));
+        rows.push(createForcedRow(images));
+    } else if (images.length > 2) {
+        let row = createRow(images);
+        rows.push(row);
+        images.splice(0, row.length);
+        if (images.length > 0) {
+            rows.push(createForcedRow(images));
+        }
+    }
+
+    let width = maxWidth;
+    let heightsum = rows.reduce((sum, row) => {
+        return sum + row[0].height;
+    }, 0);
+    let height = heightsum + (gapsize * (rows.length - 1));
+
+    for (row of rows) {
+        for (image of row) {
+            image.width = Math.round(image.width);
+            image.height = Math.round(image.height);
+            image.buffer = await sharp('./images/' + image.name).resize(image.width, image.height).toBuffer();
+        }
+    }
+
+    let compositeArray = [];
+    let currentRowHeight = 0;
+    let counter = 0;
+    for (let i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        if (i > 0) {
+            currentRowHeight += rows[i - 1][0].height + gapsize;
+        }
+        let currentColumnWidth = 0;
+        for (let j = 0; j < row.length; j++) {
+            if (j > 0) {
+                currentColumnWidth += row[j - 1].width + gapsize;
+            }
+            let imageobject = {
+                input: row[j].buffer,
+                left: currentColumnWidth,
+                top: currentRowHeight,
+            }
+            counter++;
+            let numberobject = {
+                input: await createNumber(maxWidth / 30, counter),
+                left: currentColumnWidth + gapsize,
+                top: currentRowHeight + gapsize,
+            }
+            compositeArray.push(imageobject);
+            compositeArray.push(numberobject);
+        }
+    }
+
+    return await sharp(await createNewImage(width, height))
+        .composite(compositeArray)
+        .toBuffer();
+
+}
+
+function makeRow(images, scales) {
+    let rowImages = [];
+    for (let i = 0; i < images.length; i++) {
+        rowImages.push(resizeByWidth(images[i], scales[i]));
+    }
+    return rowImages;
+}
+
+function createForcedRow(images) {
+    return makeRow(images, calculateScales(images));
+}
+
+function createRow(images) {
+    let rowImages = [];
+    let i = 1;
+    let done = false;
+    while (!done) {
+        let row = images.slice(0, i);
+        let testRow = makeRow(row, calculateScales(row));
+        if (testRow[0].height > minHeight && testRow[0].height < maxHeight) {
+            if (i === images.length) {
+                rowImages = testRow;
+                done = true;
+            } else {
+                i++;
+            }
+        } else {
+            if (testRow[0].height < minHeight && i > 1) {
+                i--;
+                row = images.slice(0, i);
+                rowImages = makeRow(row, calculateScales(row));
+                done = true;
+            } else if (testRow[0].height > maxHeight && i == images.length) {
+                rowImages = testRow;
+                done = true;
+            } else {
+                if (i === images.length) {
+                    rowImages = testRow;
+                    done = true;
+                } else {
+                    i++;
+                }
+            }
+        }
+    }
+    return rowImages;
+}
+
+
+function calculateScales(images) {
+    let scales = [];
+    for (image of images) {
+        let part = 1;
+        for (let i = 0; i < images.length; i++) {
+            if (images[i] !== image) {
+                part += images[i].ratio / image.ratio;
+            }
+        }
+        scales.push((maxWidth - (gapsize * (images.length - 1))) / part);
+    }
+    return scales;
+}
+
+function resizeByWidth(image, newWidth) {
+    let newHeight = image.height * newWidth / image.width;
+    return {
+        name: image.name,
+        ratio: image.ratio,
+        width: newWidth,
+        height: newHeight
+    };
+}
+
+
+
+async function createNewImage(width, height) {
+    let svgImage = `
+    <svg width="${width}" height="${height}">
+        <rect width="${width}" height="${height}" fill="#5e5e5e"/>
+    </svg>
+    `;
+    return await sharp(Buffer.from(svgImage, 'utf8')).toBuffer();
+}
+
+async function createNumber(size, number) {
+    let svgNumber = `
+    <svg width="${size}" height="${size}">
+        <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - size * 0.05}" fill="#a1d149" stroke="#fff" stroke-width="${size * 0.05}"/>
+        <text x="50%" y="70%" text-anchor="middle" alignment-baseline="middle" fill="#ffffff" font-size="${size * 0.66}" font-family="fantasy" font-weight="bold">${number}</text>
+    </svg>
+    `;
+    return await sharp(Buffer.from(svgNumber, 'utf8')).toBuffer();
+}
+
 
 function log(message, modulename, serenity) {
     var date = new Date();

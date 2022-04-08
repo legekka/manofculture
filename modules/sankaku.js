@@ -67,6 +67,8 @@ async function CheckNewImages() {
     newData = newData.filter((data) => data.file.error == undefined);
     log(`Download completed with ${newData.length} new submissions`, "Info");
 
+    let newImagesArray = [];
+
     if (newData.length > 0) {
         let images = [];
         for (let item of newData) {
@@ -108,7 +110,26 @@ async function CheckNewImages() {
         output = output.filter((data) => data.file.error == undefined);
         log("Download completed with " + output.length + " high quality images", "Info");
         for (let item of output) {
-            core.sankaku.NewsFeedArray.push(item);
+            //core.sankaku.NewsFeedArray.push(item);
+            newImagesArray.push(item);
+        }
+    }
+
+    // create a list for every user in the core.sankaku.NewsFeedArray
+    for (let item of newImagesArray) {
+        let user = core.dcbot.usermap.find((u) => u.name == item.user);
+        if (user) {
+            let newsFeedList = core.sankaku.NewsFeedArray.find((list) => list.user == user.name);
+            if (!newsFeedList) {
+                newsFeedList = {
+                    user: user.name,
+                    images: [],
+                };
+                newsFeedList.images.push(item);
+                core.sankaku.NewsFeedArray.push(newsFeedList);
+            } else {
+                newsFeedList.images.push(item);
+            }
         }
     }
     core.suggestor.sendNewImages();
