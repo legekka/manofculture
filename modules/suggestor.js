@@ -116,6 +116,7 @@ async function sendMontage(montageimage, user, feedlist) {
     for (let i = 0; i < feedlist.images.length; i++) {
         desc += `${i}.: https://sankaku.app/post/show/${feedlist.images[i].id} | **${feedlist.images[i].rating}**\n`;
     }
+    embed.setDescription(desc);
     embed.setImage("attachment://montage.jpg");
     await user.discordUser.send({embed: embed, files: [attachment]});
 }
