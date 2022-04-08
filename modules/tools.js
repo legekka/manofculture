@@ -51,7 +51,7 @@ function calculateResizedWidthHeight(meta) {
 }
 
 
-async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
+async function createBox(buffers, maxWidth, gapsize, minHeight, maxHeight) {
     if (!maxWidth) {
         maxWidth = 2000;
     }
@@ -63,6 +63,20 @@ async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
     }
     if (!gapsize) {
         gapsize = 10;
+    }
+
+    let images = [];
+
+
+    for (let i = 0; i < buffers.length; i++) {
+        let dimensions = await sharp(buffers[i]).metadata();
+        let image = {
+            buffer: buffers[i],
+            width: dimensions.width,
+            height: dimensions.height,
+            ratio: dimensions.width / dimensions.height
+        }
+        images.push(image);
     }
 
     let rows = [];
@@ -89,12 +103,14 @@ async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
         rows.push(createForcedRow(firsthalf, maxWidth, gapsize));
         rows.push(createForcedRow(images, maxWidth, gapsize));
     } else if (images.length > 2) {
-        let row = createRow(images, minHeight, maxHeight);
+        let row = createRow(images, minHeight, maxHeight, maxWidth, gapsize);
         rows.push(row);
         images.splice(0, row.length);
         if (images.length > 0) {
             rows.push(createForcedRow(images, maxWidth, gapsize));
         }
+    } else {
+        rows.push(createForcedRow(images, maxWidth, gapsize));
     }
 
     let width = maxWidth;
@@ -107,7 +123,7 @@ async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
         for (image of row) {
             image.width = Math.round(image.width);
             image.height = Math.round(image.height);
-            image.buffer = await sharp('./images/' + image.name).resize(image.width, image.height).toBuffer();
+            image.buffer = await sharp(image.buffer).resize(image.width, image.height).toBuffer();
         }
     }
 
@@ -212,10 +228,10 @@ function calculateScales(images, maxWidth, gapsize) {
 function resizeByWidth(image, newWidth) {
     let newHeight = image.height * newWidth / image.width;
     return {
-        name: image.name,
         ratio: image.ratio,
         width: newWidth,
-        height: newHeight
+        height: newHeight,
+        buffer: image.buffer
     };
 }
 
@@ -234,7 +250,7 @@ async function createNumber(size, number) {
     let svgNumber = `
     <svg width="${size}" height="${size}">
         <circle cx="${size / 2}" cy="${size / 2}" r="${size / 2 - size * 0.05}" fill="#a1d149" stroke="#fff" stroke-width="${size * 0.05}"/>
-        <text x="50%" y="70%" text-anchor="middle" alignment-baseline="middle" fill="#ffffff" font-size="${size * 0.66}" font-family="fantasy" font-weight="bold">${number}</text>
+        <text x="50%" y="70%" text-anchor="middle" alignment-baseline="middle" fill="#ffffff" font-size="${size * 0.66}" font-weight="bold">${number}</text>
     </svg>
     `;
     return await sharp(Buffer.from(svgNumber, 'utf8')).toBuffer();
