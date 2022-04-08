@@ -70,13 +70,13 @@ async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
     if (images.length > 4) {
 
         while (images.length > 0) {
-            let row = createRow(images);
+            let row = createRow(images, minHeight, maxHeight, maxWidth, gapsize);
             if (images.length - row.length == 1) {
                 if (row.length > 2) {
                     let imagesToRow = images.splice(0, row.length - 1);
-                    rows.push(createRow(imagesToRow));
+                    rows.push(createRow(imagesToRow, minHeight, maxHeight, maxWidth, gapsize));
                 } else {
-                    rows.push(createForcedRow(images));
+                    rows.push(createForcedRow(images, maxWidth, gapsize));
                     images = [];
                 }
             } else {
@@ -86,14 +86,14 @@ async function createBox(images, maxWidth, gapsize, minHeight, maxHeight) {
         }
     } else if (images.length > 3) {
         let firsthalf = images.splice(0, 2);
-        rows.push(createForcedRow(firsthalf));
-        rows.push(createForcedRow(images));
+        rows.push(createForcedRow(firsthalf, maxWidth, gapsize));
+        rows.push(createForcedRow(images, maxWidth, gapsize));
     } else if (images.length > 2) {
-        let row = createRow(images);
+        let row = createRow(images, minHeight, maxHeight);
         rows.push(row);
         images.splice(0, row.length);
         if (images.length > 0) {
-            rows.push(createForcedRow(images));
+            rows.push(createForcedRow(images, maxWidth, gapsize));
         }
     }
 
@@ -154,17 +154,17 @@ function makeRow(images, scales) {
     return rowImages;
 }
 
-function createForcedRow(images) {
-    return makeRow(images, calculateScales(images));
+function createForcedRow(images, maxWidth, gapsize) {
+    return makeRow(images, calculateScales(images, maxWidth, gapsize));
 }
 
-function createRow(images) {
+function createRow(images, minHeight, maxHeight, maxWidth, gapsize) {
     let rowImages = [];
     let i = 1;
     let done = false;
     while (!done) {
         let row = images.slice(0, i);
-        let testRow = makeRow(row, calculateScales(row));
+        let testRow = makeRow(row, calculateScales(row, maxWidth, gapsize));
         if (testRow[0].height > minHeight && testRow[0].height < maxHeight) {
             if (i === images.length) {
                 rowImages = testRow;
@@ -176,7 +176,7 @@ function createRow(images) {
             if (testRow[0].height < minHeight && i > 1) {
                 i--;
                 row = images.slice(0, i);
-                rowImages = makeRow(row, calculateScales(row));
+                rowImages = makeRow(row, calculateScales(row, maxWidth, gapsize));
                 done = true;
             } else if (testRow[0].height > maxHeight && i == images.length) {
                 rowImages = testRow;
@@ -195,7 +195,7 @@ function createRow(images) {
 }
 
 
-function calculateScales(images) {
+function calculateScales(images, maxWidth, gapsize) {
     let scales = [];
     for (image of images) {
         let part = 1;
