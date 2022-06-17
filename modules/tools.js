@@ -18,7 +18,7 @@ module.exports = {
 function DownloadPromise(url, conversion) {
     return new Promise(async (resolve, reject) => {
         let filebuffer = await download(url, { throwHttpErrors: false });
-        if (filebuffer.length == undefined) {
+        if (typeof filebuffer.length === 'undefined') {
             resolve({ error: "Failed to download image" });
             return;
         }

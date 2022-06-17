@@ -177,6 +177,9 @@ function initRetrainingTimer() {
     let currentTime = hour * 3600 + minute * 60 + second + millisecond / 1000;
     let nextTime = 23 * 3600 + 30 * 60;
     let timeDifference = nextTime - currentTime;
+    if (timeDifference < 0) {
+        timeDifference = 24 * 3600 + timeDifference;
+    }
     let remainingHours = Math.floor(timeDifference / 3600);
     let remainingMinutes = Math.floor((timeDifference - remainingHours * 3600) / 60);
     let remainingSeconds = Math.floor(timeDifference - remainingHours * 3600 - remainingMinutes * 60);

@@ -65,7 +65,9 @@ async function sendNewImages() {
                     continue;
                 }
             }
-
+            if (list.images.length == 0) {
+                continue;
+            }
             let images = [];
             for (let i = 0; i < list.images.length; i++) {
                 images.push(list.images[i].file);
@@ -186,7 +188,7 @@ function initEventHandler() {
                     "Starting RNG feed for " +
                     options.username +
                     " with options:" +
-                    (options.limit ? " limit: " + options.limit : " limit: 0.9") +
+                    (options.limit ? " limit: " + (options.limit * 10) : " limit: 9.0") +
                     (options.searchtags ? " searchtags: [" + options.searchtags.join(", ") + "]" : "") +
                     (options.no_blacklist ? " no_blacklist" : "") +
                     " feedId: " +

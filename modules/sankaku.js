@@ -107,7 +107,7 @@ async function CheckNewImages() {
         for (let item of output) {
             item.file = await item.file;
         }
-        output = output.filter((data) => data.file.error == undefined);
+        output = output.filter((data) => typeof data.file.error === 'undefined');
         log("Download completed with " + output.length + " high quality images", "Info");
         for (let item of output) {
             //core.sankaku.NewsFeedArray.push(item);
