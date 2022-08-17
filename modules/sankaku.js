@@ -63,6 +63,13 @@ async function CheckNewImages() {
     await Promise.all(promises);
     for (let item of newData) {
         item.file = await item.file;
+        try {
+            await sharp(item.file);
+        }
+        catch (error) {
+            log(`Image ${item.id} is invalid`, "Error");
+            item.file.error = true;
+        }
     }
     newData = newData.filter((data) => data.file.error == undefined);
     log(`Download completed with ${newData.length} new submissions`, "Info");
@@ -106,6 +113,13 @@ async function CheckNewImages() {
         await Promise.all(promises);
         for (let item of output) {
             item.file = await item.file;
+            try {
+                await sharp(item.file);
+            }
+            catch (error) {
+                log(`Image ${item.id} is invalid`, "Error");
+                item.file.error = true;
+            }
         }
         output = output.filter((data) => typeof data.file.error === 'undefined');
         log("Download completed with " + output.length + " high quality images", "Info");
