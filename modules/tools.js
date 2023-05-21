@@ -33,19 +33,25 @@ function DownloadPromise(url, conversion) {
     });
 }
 
-async function ResizeImage(image) {
-    let size = calculateResizedWidthHeight(await sharp(image).metadata());
-    return await sharp(image).resize(size.width, size.height).toFormat("jpeg").toBuffer();
+async function ResizeImage(image, size) {
+    if (!size) {
+        size = 512;
+    }
+    size = calculateResizedWidthHeight(await sharp(image).metadata(), size);
+    return await sharp(image).resize(size.width, size.height, {
+        fit: sharp.fit.contain,
+        background: { r: 124, g: 116, b: 104, alpha: 1 }
+    }).toFormat("jpeg").toBuffer();
 }
 
-function calculateResizedWidthHeight(meta) {
+function calculateResizedWidthHeight(meta, size) {
     let width, height;
     if (meta.width > meta.height) {
-        width = 256;
-        height = Math.round(meta.height * (256 / meta.width));
+        width = size;
+        height = Math.round(meta.height * (size / meta.width));
     } else {
-        height = 256;
-        width = Math.round(meta.width * (256 / meta.height));
+        height = size;
+        width = Math.round(meta.width * (size / meta.height));
     }
     return { width: width, height: height };
 }

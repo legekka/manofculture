@@ -32,14 +32,14 @@ async function _rateImage(url, filename) {
     }
     let ratings = [];
 
-    for (let i = 0; i < result.rating.length; i++) {
+    for (let i = 0; i < result.ratings.length; i++) {
         ratings.push({
-            name: result.users[i],
-            rating: result.rating[i],
+            name: result.ratings[i][0],
+            rating: result.ratings[i][1],
         });
     }
 
-    ratings.sort((a, b) => (a.rating > b.rating ? -1 : 1));
+    ratings.sort((a, b) => b.rating - a.rating);
 
     return createEmbed(url, ratings);
 }
@@ -54,7 +54,7 @@ function createEmbed(url, ratings) {
         desc += `**${ratings[i].name}**'s rating: **${(ratings[i].rating * 10).toFixed(1)}**/10\n`;
     }
     embed.setDescription(desc);
-    embed.setFooter(`Using RaterNN1S personalized models`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
+    embed.setFooter(`Using RaterNN v2`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
     return embed;
 }
 

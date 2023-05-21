@@ -32,18 +32,18 @@ async function _tagImage(url, filename) {
         return { error: "aibackend error" };
     }
     let tags = [];
-    for (let i = 0; i < result.labels.length; i++) {
+    for (let i = 0; i < result.tags.length; i++) {
         tags.push({
-            name: result.labels[i],
-            confidence: result.confidences[i],
+            name: result.tags[i][0],
+            confidence: result.tags[i][1],
         });
     }
 
-    tags.sort((a, b) => b.confidence - a.confidence);
-    return createEmbed(url, tags);
+    // tags.sort((a, b) => b.confidence - a.confidence);
+    return createEmbed(url, tags, "TaggerNN v11 (6000 classes)");
 }
 
-function createEmbed(url, tags) {
+function createEmbed(url, tags, modelname) {
     let embed = new MessageEmbed();
     embed.setTitle("Tags");
     embed.setThumbnail(url);
@@ -59,7 +59,7 @@ function createEmbed(url, tags) {
         }
     });
     embed.setDescription(desc);
-    embed.setFooter(`Using TaggerNN4S (989 classes)`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
+    embed.setFooter(`Using ${modelname}`, "https://cdn.discordapp.com/avatars/899696794945081374/76fac7e4401f776d4b84eed4f31d28d8.webp?size=128");
     return embed;
 }
 
@@ -103,22 +103,19 @@ function initEventHandler() {
         if (message.author.bot) return;
 
         if (config.taggerChannels.includes(message.channel.id)) {
+            let url, filename, extension;
             if (message.attachments.size > 0) {
-                let url = message.attachments.first().url;
-                let filename = message.attachments.first().name;
-                core.tagger.TagImage(url, filename).then((embed) => {
-                    if (!embed.error) message.channel.send({ embeds: [embed] });
-                    else message.channel.send("Error: " + embed.error);
-                });
+                url = message.attachments.first().url;
+                filename = message.attachments.first().name;
             } else if (message.content.includes("http")) {
-                let url = message.content.split(" ").find((w) => w.includes("http"));
-                let extension = url.split("/").pop().split(".").pop();
-                let filename = message.id + "." + extension;
-                core.tagger.TagImage(url, filename).then((embed) => {
-                    if (!embed.error) message.channel.send({ embeds: [embed] });
-                    else message.channel.send("Error: " + embed.error);
-                });
+                url = message.content.split(" ").find((w) => w.includes("http"));
+                extension = url.split("/").pop().split(".").pop();
+                filename = message.id + "." + extension;
             }
+            core.tagger.TagImage(url, filename).then((embed) => {
+                if (!embed.error) message.channel.send({ embeds: [embed] });
+                else message.channel.send("Error: " + embed.error);
+            });
         }
     });
 }

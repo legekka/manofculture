@@ -179,7 +179,7 @@ module.exports = {
                     reject(error);
                 });
         });
-    },
+    }
 };
 
 function generateRandomFilename() {
