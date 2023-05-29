@@ -1,25 +1,18 @@
 # The Man Of Culture
 
-A true Man of Culture AI assisted image tagger, personalized rater and suggester. It is currently in early development however it is already able to do some basic stuff. The AI-Backend is currently private, but I am going to make it public when it is finished.
+A true Man of Culture AI assisted image tagger, personalized rater and suggester. It is currently in early development however it is already able to do some basic stuff. The [ai-backend](https://github.com/legekka/ai-backend) is now available, however it is being rewritten and still work-in-progress.
 
-My main goal is to everyone be able to have a personalized high quality neural network model representing their taste in anime pictures. This Bot is the front end of the nasty AI stuff, but it will be able to fully maintain the backend (sending new learning data, creating new user models, configuring feeds)
+My main goal is to create an easy-to-use environment for everyone to get a personalized high quality neural network model representing their taste of anime pictures. This Discord bot is one of the frontend of the environment, made for primitive management of the AI-backend, but also the main place where the personalized image feed has been set up.
 
 ## Features that are working
 
-- New image feed from sankaku
-- Random Image feed from sankaku with search parameters
-- Image tagging in specified discord channels
-- Image rating in specified discord channels
-- User feedback image rating collection in specified discord channels
-- Manual user model retraining based on new rated images
+- Image feed of the newly uploaded images on Sankaku
+- Random Image search on Sankaku with search parameters and user rating limit
+- Image tagging and rating in specified discord channels
+- User rating collector in specified discord channels, for personalized model training
+- Handling the automatized process of model retraining
 - Scheduled user model retraining
-
-## Features that will be implemented
-
-Coming up:
-- Rest API for non-discord related usage
-- And many more
 
 ## Setup
 
-After I published the AI-Backend repository, I will do a proper setup guide.
+After I finish the [AI-Backend](https://github.com/legekka/ai-backend) and the [Webui](https://github.com/legekka/manofculture-webui), I will do a proper guide.
