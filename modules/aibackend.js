@@ -1,6 +1,5 @@
 const axios = require("axios");
 const FormData = require("form-data");
-const sharp = require("sharp");
 const util = require("util");
 
 let core;
@@ -179,6 +178,68 @@ module.exports = {
                     reject(error);
                 });
         });
+    },
+
+    addImage: function (image, filename, sankaku_id=null) {
+        return new Promise(async function (resolve, reject) {
+            let buffer = await core.tools.ConvertToJpegBuffer(image);
+            let form = new FormData();
+            log("Adding image to Man Of Culture DB", "Info");
+            form.append("image", buffer, { filename: filename });
+            if (sankaku_id) form.append("sankaku_id", sankaku_id);
+            let start = new Date();
+            axios
+                .post(config.backendUrl + "addimage", form, {
+                    headers: form.getHeaders(),
+                })
+                .then(function (response) {
+                    log(`Received response from AI backend (${new Date() - start}ms)`, "Info");
+                    resolve(response.data);
+                })
+                .catch(function (error) {
+                    log(`Error while receiving response from AI backend`, "Error");
+                    reject(error);
+                });
+        });
+    },
+
+    // simple GET method on the updatetags endpoint
+    updateTags: function () {
+        return new Promise((resolve, reject) => {
+            log("Updating tags", "Info");
+            axios
+                .get(config.backendUrl + "updatetags")
+                .then((response) => {
+                    log("Tags updated", "Info");
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    log("Error updating tags", "Error");
+                    reject(error);
+                });
+        });
+    },
+
+    // create montage post
+    createMontagepost: function (filenames, userid) {
+        return new Promise((resolve, reject) => {
+            let form = new FormData();
+            form.append("filenames", filenames.join(","));
+            form.append("user", userid);
+            log("Creating montagepost", "Info");
+            axios
+                .post(config.backendUrl + "createmontagepost", form, {
+                    headers: form.getHeaders(),
+                })
+                .then((response) => {
+                    log("Montagepost created", "Info");
+                    resolve(response.data);
+                })
+                .catch((error) => {
+                    log("Error creating montagepost", "Error");
+                    reject(error);
+                });
+        });
     }
 };
 
@@ -188,8 +249,8 @@ function generateRandomFilename() {
 
 function log(message, serenity) {
     modulename = "aibackend.js";
-    if (config.debug) {
+    if (config.debug)
         core.tools.log(message, modulename, serenity);
-    }
-    if (serenity == "Error") core.tools.log(message, modulename, serenity);
+    else if (serenity == "Error")
+        core.tools.log(message, modulename, serenity);
 }

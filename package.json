@@ -5,6 +5,7 @@
     "discord.js": "^13.3.1",
     "download": "^8.0.0",
     "form-data": "^4.0.0",
+    "request": "^2.88.2",
     "sankaku-client": "^1.0.1",
     "sharp": "^0.29.2"
   }

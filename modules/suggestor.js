@@ -68,11 +68,32 @@ async function sendNewImages() {
             if (list.images.length == 0) {
                 continue;
             }
+            // uploading images to man of culture db
             let images = [];
+            let filenames = []
             for (let i = 0; i < list.images.length; i++) {
                 images.push(list.images[i].file);
+                log("Uploading image: " + list.images[i].filename + " to ai-backend", "Info")
+                try {
+                    let response = await core.aibackend.addImage(list.images[i].file, list.images[i].filename, list.images[i].id);
+                }
+                catch (e) {
+                    log("Error while uploading image: " + list.images[i].filename + " to ai-backend", "Error")
+                }
+
+                filenames.push(list.images[i].filename);
             }
 
+            // tagging new images in DB
+            response = await core.aibackend.updateTags();
+            log("Tagged " + response.updated_images_count + " images", "Info");
+
+            // creating montage post
+            let userid = user.userid;
+            response = await core.aibackend.createMontagepost(filenames, userid);
+            log("Created montage post with id: " + response.montagepost_id, "Info");
+
+            // creating montage embed for discord
             let montage = await core.tools.createBox(images);
             log("Sending montage to " + user.name + " with " + images.length + " images", "Info");
             await sendMontage(montage, user, list);
@@ -98,7 +119,7 @@ async function sendMontage(montageimage, user, feedlist) {
     await sharp(montageimage).toFile("cache/" + filename);
 
     let embed = new MessageEmbed();
-    let attachment = new MessageAttachment(fs.readFileSync("cache/" + filename), "montage.jpg");
+    //let attachment = new MessageAttachment(fs.readFileSync("cache/" + filename), "montage.jpg");
     embed.setTitle("New images!");
 
     let desc = "";
@@ -106,8 +127,13 @@ async function sendMontage(montageimage, user, feedlist) {
         desc += `${i + 1}.: https://sankaku.app/post/show/${feedlist.images[i].id} | **${(feedlist.images[i].rating * 10).toFixed(1)}**\n`;
     }
     embed.setDescription(desc);
-    embed.setImage("attachment://montage.jpg");
-    await user.discordUser.send({ embeds: [embed], files: [attachment] });
+    embed.setImage(await core.bfish.upload("cache/" + filename));
+    try {
+        await user.discordUser.send({ embeds: [embed] });
+    }
+    catch (e) {
+        log("Error while sending montage to " + user.name , "Error");
+    }
     fs.unlinkSync("cache/" + filename);
 }
 
@@ -232,8 +258,8 @@ function _init(coreprogram, configuration) {
 
 function log(message, serenity) {
     modulename = "suggestor.js";
-    if (config.debug) {
+    if (config.debug) 
         core.tools.log(message, modulename, serenity);
-    }
-    if (serenity == "Error") core.tools.log(message, modulename, serenity);
+    else if (serenity == "Error") 
+        core.tools.log(message, modulename, serenity);
 }

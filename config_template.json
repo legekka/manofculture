@@ -34,5 +34,9 @@
         "newImageInterval": 1800000,
         "pageLimit": 100,
         "debug": true
+    },
+    "bfish": {
+        "key": "api key",
+        "debug": true
     }
 }

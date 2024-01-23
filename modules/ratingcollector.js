@@ -143,8 +143,8 @@ function _init(coreprogram, configuration) {
 
 function log(message, serenity) {
     modulename = "ratingcollector.js";
-    if (config.debug) {
+    if (config.debug) 
         core.tools.log(message, modulename, serenity);
-    }
-    if (serenity == "Error") core.tools.log(message, modulename, serenity);
+    else if (serenity == "Error") 
+        core.tools.log(message, modulename, serenity);
 }

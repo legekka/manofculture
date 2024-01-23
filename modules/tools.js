@@ -11,6 +11,7 @@ module.exports = {
     },
     log: log,
     ResizeImage: ResizeImage,
+    ConvertToJpegBuffer: ConvertToJpegBuffer,
     DownloadPromise: DownloadPromise,
     createBox: createBox,
 };
@@ -42,6 +43,10 @@ async function ResizeImage(image, size) {
         fit: sharp.fit.contain,
         background: { r: 124, g: 116, b: 104, alpha: 1 }
     }).toFormat("jpeg").toBuffer();
+}
+
+async function ConvertToJpegBuffer(image) {
+    return await sharp(image).toFormat("jpeg").toBuffer();
 }
 
 function calculateResizedWidthHeight(meta, size) {

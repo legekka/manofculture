@@ -10,14 +10,22 @@ const core = {
     rater: require("./modules/rater"),
     ratingcollector: require("./modules/ratingcollector"),
     trainer: require("./modules/trainer"),
+    bfish: require("./modules/bfish"),
 };
 
-core.tools.init(core);
-core.aibackend.init(core, config.aibackend);
-core.dcbot.init(core, config.dcbot);
-core.suggestor.init(core, config.suggestor);
-core.sankaku.init(core, config.sankaku);
-core.tagger.init(core, config.tagger);
-core.rater.init(core, config.rater);
-core.ratingcollector.init(core, config.ratingcollector);
-core.trainer.init(core, config.trainer);
+
+
+main()
+
+async function main() {
+    core.tools.init(core);
+    core.aibackend.init(core, config.aibackend);
+    core.dcbot.init(core, config.dcbot);
+    core.suggestor.init(core, config.suggestor);
+    core.sankaku.init(core, config.sankaku);
+    core.tagger.init(core, config.tagger);
+    core.rater.init(core, config.rater);
+    core.ratingcollector.init(core, config.ratingcollector);
+    core.trainer.init(core, config.trainer);
+    core.bfish.init(core, config.bfish);
+}

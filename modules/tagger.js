@@ -40,7 +40,7 @@ async function _tagImage(url, filename) {
     }
 
     // tags.sort((a, b) => b.confidence - a.confidence);
-    return createEmbed(url, tags, "TaggerNN v11 (6000 classes)");
+    return createEmbed(url, tags, "TaggerNN v11 Finetune 3 (6000 classes)");
 }
 
 function createEmbed(url, tags, modelname) {
@@ -112,6 +112,7 @@ function initEventHandler() {
                 extension = url.split("/").pop().split(".").pop();
                 filename = message.id + "." + extension;
             }
+            if (!url && !filename) return;
             core.tagger.TagImage(url, filename).then((embed) => {
                 if (!embed.error) message.channel.send({ embeds: [embed] });
                 else message.channel.send("Error: " + embed.error);
@@ -138,8 +139,8 @@ function _init(coreprogram, configuration) {
 
 function log(message, serenity) {
     modulename = "tagger.js";
-    if (config.debug) {
+    if (config.debug) 
         core.tools.log(message, modulename, serenity);
-    }
-    if (serenity == "Error") core.tools.log(message, modulename, serenity);
+    else if (serenity == "Error") 
+        core.tools.log(message, modulename, serenity);
 }
